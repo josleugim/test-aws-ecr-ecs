@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 061039804556.dkr.ecr.us-east-1.amazonaws.com
+  build:
+    commands:
+      - docker build -t my-nest-app .
+      - docker tag my-nest-app:latest 061039804556.dkr.ecr.us-east-1.amazonaws.com/test-aws-ecr-ecs:latest
+  post_build:
+    commands:
+      - docker push 061039804556.dkr.ecr.us-east-1.amazonaws.com/test-aws-ecr-ecs:latest
+      - printf '[{"name":"my-nest-container","imageUri":"%s"}]' 061039804556.dkr.ecr.us-east-1.amazonaws.com/test-aws-ecr-ecs:latest > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
